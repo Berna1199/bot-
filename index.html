@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aviator K4</title>
+  <style>
+    :root{
+      --bg:#000000;
+      --card:#0b0b0b;
+      --accent-red:#ff1f1f;
+      --text:#f2f2f2;
+    }
+    *{box-sizing:border-box}
+    html,body{
+      height:100%;margin:0;
+      font-family:Inter,system-ui,Arial,Helvetica,sans-serif;
+      background:radial-gradient(ellipse at center,#000 0%,#050505 40%,#000 100%);
+      color:var(--text)
+    }
+
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+    .card{
+      width:360px;
+      max-width:94vw;
+      background:linear-gradient(180deg,#080808 0%, #0f0f0f 100%);
+      border-radius:18px;
+      padding:28px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.75), 0 0 28px rgba(255,0,0,0.02) inset;
+      text-align:center;
+      border:4px solid transparent;
+      position:relative;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-6px;
+      border-radius:22px;
+      background:linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 45%, rgba(255,10,10,0.85) 46%, rgba(255,10,10,0.85) 54%, rgba(0,0,0,1) 55%, rgba(0,0,0,1) 100%);
+      z-index:-1;
+      filter:blur(6px);
+      mix-blend-mode:screen;
+    }
+
+    h1{
+      font-size:22px;
+      margin:6px 0 14px;
+      font-weight:700;
+      letter-spacing:1px;
+      color:var(--text);
+    }
+    p.lead{
+      margin:0 0 18px;
+      color:#e6e6e6;
+      font-size:13px;
+    }
+
+    .orb{
+      width:160px;
+      height:160px;
+      border-radius:50%;
+      margin:10px auto 18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at 30% 30%, rgba(255,0,0,0.12), rgba(0,0,0,0.6));
+      border:6px solid #060606;
+      position:relative;
+      overflow:hidden;
+      box-shadow:0 8px 30px rgba(0,0,0,0.7),0 0 40px rgba(255,0,0,0.04) inset;
+    }
+    .orb::after{
+      content:"";
+      position:absolute;
+      inset:6px;
+      border-radius:50%;
+      border:3px dashed rgba(255,0,0,0.06);
+    }
+
+    .btn{
+      width:120px;
+      height:120px;
+      border-radius:50%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      font-size:16px;
+      cursor:pointer;
+      user-select:none;
+      border:6px solid var(--accent-red);
+      background:linear-gradient(180deg,#180000 0%, #2b0000 100%);
+      color:var(--text);
+      box-shadow:0 12px 30px rgba(0,0,0,0.7),0 0 26px rgba(255,0,0,0.06) inset;
+      transition:transform .22s ease,box-shadow .2s ease;
+      text-align:center;
+      padding:8px;
+      line-height:1;
+      outline:none;
+    }
+    .btn:active{transform:scale(.98) rotate(-1deg)}
+
+    .glow{
+      position:absolute;
+      width:220px;
+      height:220px;
+      border-radius:50%;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      z-index:-2;
+      pointer-events:none;
+      opacity:.08;
+      background:conic-gradient(from 0deg, rgba(255,0,0,0.85), rgba(255,20,20,0.25), rgba(0,0,0,0));
+      animation:spinPulse 7s linear infinite;
+    }
+    @keyframes spinPulse{
+      0%{transform:translate(-50%,-50%) rotate(0) scale(1)}
+      50%{transform:translate(-50%,-50%) rotate(180deg) scale(1.06)}
+      100%{transform:translate(-50%,-50%) rotate(360deg) scale(1)}
+    }
+
+    .signals{
+      margin-top:18px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:center;
+    }
+    .signal{
+      width:100%;
+      padding:8px;
+      border-radius:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+      border:1px solid rgba(255,0,0,0.06);
+      font-weight:600;
+    }
+
+    .small{
+      font-size:12px;
+      color:#c7c7c7;
+      margin-top:10px;
+    }
+
+    @media (max-width:420px){
+      .orb{width:140px;height:140px}
+      .btn{width:110px;height:110px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="glow" aria-hidden="true"></div>
+      <h1>Aviator K4</h1>
+      <p class="lead">Gerador de sinais — demonstração offline.</p>
+
+      <div class="orb">
+        <button id="generateBtn" class="btn" title="Gerar sinais">Gerar sinais</button>
+      </div>
+
+      <div class="signals" id="signalsList"></div>
+      <div class="small">Os sinais são simulados e aleatórios, apenas para demonstração.</div>
+    </div>
+  </div>
+
+  <script>
+    const btn = document.getElementById('generateBtn');
+    const signalsList = document.getElementById('signalsList');
+
+    function spinButton(){
+      btn.animate([
+        {transform: 'rotate(0) scale(1)'},
+        {transform: 'rotate(20deg) scale(1.03)'},
+        {transform: 'rotate(-8deg) scale(0.99)'},
+        {transform: 'rotate(0) scale(1)'}
+      ],{duration:900,easing:'cubic-bezier(.2,.9,.3,1)'});
+    }
+
+    function gerarSinais(){
+      signalsList.innerHTML = '';
+      const count = 4 + Math.floor(Math.random()*3);
+      for(let i=0;i<count;i++){
+        const el = document.createElement('div');
+        el.className = 'signal';
+        const multiplier = (Math.random()*99+1).toFixed(2);
+        const color = multiplier < 2 ? 'baixo' : (multiplier < 10 ? 'medio' : 'alto');
+        el.textContent = `Sinal #${i+1} — multip. provável: ${multiplier}x (${color})`;
+        signalsList.appendChild(el);
+      }
+      try{
+        const osc = new (window.AudioContext || window.webkitAudioContext)();
+        const o = osc.createOscillator();
+        const g = osc.createGain();
+        o.type='sine';o.frequency.value=520;g.gain.value=0.02;o.connect(g);g.connect(osc.destination);o.start();
+        setTimeout(()=>{o.stop();osc.close()},120);
+      }catch(e){}
+    }
+
+    btn.addEventListener('click',()=>{
+      spinButton();
+      gerarSinais();
+      btn.disabled = true;
+      setTimeout(()=>btn.disabled=false,6000);
+    });
+  </script>
+</body>
+</html>
